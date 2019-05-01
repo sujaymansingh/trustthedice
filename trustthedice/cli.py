@@ -1,5 +1,8 @@
 import random
 
+from functools import wraps
+from textwrap import dedent
+
 import click
 
 from . import lib
@@ -12,16 +15,28 @@ class ProbableOutcomeParamType(click.ParamType):
         return lib.parse_probable_outcome(value)
 
 
-@contextmanager
-def catch_errors():
-    try:
-        yield
-    except lib.BaseError as e:
-        click.echo("Encountered an error:")
-        click.echo(dedent(e.explanation()))
-    except:
-        click.echo("unknown error")
-        raise
+def handle_errors_nicely(func):
+    """This attempts to run some code, and deal (nicely) with any exception
+
+    In particular, for our own exceptions, we can print a suggestion that helps
+    """
+
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except lib.BaseError as e:
+            click.secho("Error: ", fg="red", nl=False)
+            click.echo(e.title() or e.__class__.__name__)
+            description = e.description() or ""
+            if description:
+                click.echo(dedent(description))
+        except:
+            click.echo("unknown error")
+            # TODO: don't just blindly raise! Deal with it better
+            raise
+
+    return wrapped
 
 
 @click.group()
