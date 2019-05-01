@@ -11,6 +11,31 @@ class ProbableOutcome:
     probability: Fraction = attrib()
 
 
+def parse_probable_outcome(outcome_string):
+    """Parse a probable outcome from a string.
+
+    >>> parse_probable_outcome("Win: 1 in 10")
+    ProbableOutcome(name='Win', probability=Fraction(1, 10))
+    """
+    parts = [part.strip() for part in outcome_string.split(":")]
+    if len(parts) != 2:
+        raise InvalidProbableOutcomeStringError()
+    name = parts[0]
+
+    number_parts = [part.strip() for part in parts[1].split("in")]
+    if len(parts) != 2:
+        raise InvalidProbableOutcomeStringError()
+
+    try:
+        numbers = [int(part) for part in number_parts]
+    except (TypeError, ValueError) as e:
+        raise InvalidProbableOutcomeStringError(e)
+
+    probability = Fraction(numbers[0], numbers[1])
+
+    return ProbableOutcome(name=name, probability=probability)
+
+
 def calculate_cumulative_probabilities(outcomes, remainder_name=None):
     """Return a new set of outcomes, but with probabilities made cumulative.
 
@@ -77,6 +102,10 @@ def pick_outcome(value, outcomes):
 
 
 class BaseError(Exception):
+    pass
+
+
+class InvalidProbableOutcomeStringError(BaseError):
     pass
 
 
