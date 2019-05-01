@@ -7,9 +7,10 @@ setup(
     install_requires=[
         "attrs==19.1.0",
         "Click==7.0",
+        "pytest==4.4.1"
     ],
     entry_points="""
         [console_scripts]
-        trustthedice=trustthedice:cli.main
+        trustthedice=trustthedice.cli:main
     """,
 )
