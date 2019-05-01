@@ -4,5 +4,5 @@ setup(
     name="trustthedice",
     version="0.0.1",
     py_modules=["trustthedice"],
-    install_requires=[],
+    install_requires=["attrs==19.1.0"],
 )
