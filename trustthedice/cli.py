@@ -48,7 +48,8 @@ def main():
 @click.option(
     "--outcome", "-oc", "outcomes", multiple=True, type=ProbableOutcomeParamType()
 )
-@click.option("--otherwise", type=str, default="n/a")
+@click.option("--otherwise", type=str, default="")
+@handle_errors_nicely
 def pick_random_outcome(outcomes, otherwise):
     outcomes = lib.calculate_cumulative_probabilities(
         outcomes, remainder_name=otherwise
