@@ -6,6 +6,7 @@ setup(
     py_modules=["trustthedice"],
     install_requires=[
         "attrs==19.1.0",
+        "black==19.3b0",
         "Click==7.0",
         "pytest==4.4.1"
     ],
