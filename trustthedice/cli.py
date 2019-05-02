@@ -5,7 +5,7 @@ from textwrap import dedent
 
 import click
 
-from . import lib
+from . import exceptions, lib
 
 
 class ProbableOutcomeParamType(click.ParamType):
@@ -25,7 +25,7 @@ def handle_errors_nicely(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except lib.BaseError as e:
+        except exceptions.BaseError as e:
             click.secho("Error: ", fg="red", nl=False)
             click.echo(e.title() or e.__class__.__name__)
             description = e.description() or ""

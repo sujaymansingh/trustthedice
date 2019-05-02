@@ -2,6 +2,8 @@ from fractions import Fraction
 
 from attr import attrs, attrib
 
+from . import exceptions
+
 
 @attrs
 class ProbableOutcome:
@@ -20,17 +22,17 @@ def parse_probable_outcome(outcome_string):
     """
     parts = [part.strip() for part in outcome_string.split(":")]
     if len(parts) != 2:
-        raise InvalidProbableOutcomeStringError()
+        raise exceptions.InvalidProbableOutcomeStringError()
     name = parts[0]
 
     number_parts = [part.strip() for part in parts[1].split("in")]
     if len(parts) != 2:
-        raise InvalidProbableOutcomeStringError()
+        raise exceptions.InvalidProbableOutcomeStringError()
 
     try:
         numbers = [int(part) for part in number_parts]
     except (TypeError, ValueError) as e:
-        raise InvalidProbableOutcomeStringError(e)
+        raise exceptions.InvalidProbableOutcomeStringError(e)
 
     probability = Fraction(numbers[0], numbers[1])
 
@@ -59,19 +61,19 @@ def calculate_cumulative_probabilities(outcomes, remainder_name=None):
     for outcome in outcomes:
         current_total += outcome.probability
         if current_total > one:
-            raise TotalProbabilityMoreThanOneError()
+            raise exceptions.TotalProbabilityMoreThanOneError()
         result.append(ProbableOutcome(name=outcome.name, probability=current_total))
 
     if current_total == one:
         if remainder_name:
-            raise RedundantRemainderError()
+            raise exceptions.RedundantRemainderError()
     else:
         if remainder_name:
             result.append(ProbableOutcome(name=remainder_name, probability=one))
         else:
             # We have a gap between our current total and 1.0
             # Any values within there will have no probabilities, and that's bad.
-            raise TotalProbabilityLessThanOneError()
+            raise exceptions.TotalProbabilityLessThanOneError()
 
     return result
 
@@ -100,60 +102,3 @@ def pick_outcome(value, outcomes):
         if value <= outcome.probability:
             return outcome
     raise CouldntPickOutcomeError()
-
-
-class BaseError(Exception):
-    def title(self):
-        """Return a short, one line description
-        """
-        pass
-
-    def description(self):
-        """Return a longer, multiline description
-        """
-        pass
-
-
-class InvalidProbableOutcomeStringError(BaseError):
-    def title(self):
-        return (
-            "Invalid probable outcome value (must be 'Win the lottery: 1 in 1000000')"
-        )
-
-
-class TotalProbabilityMoreThanOneError(BaseError):
-    def title(self):
-        return "Total probability can't be more than one"
-
-    def description(self):
-        return """
-            The total of all the probabilities is more than 1.
-            Make sure that the total doesn't exceed 1!
-        """
-
-
-class TotalProbabilityLessThanOneError(BaseError):
-    def title(self):
-        return "Total probability can't be less than one"
-
-    def description(self):
-        return """
-            The total of the all the probabilities is less than 1.
-            Either fix the probabilities so that they add up to 1, or use
-            the --otherwise flag to catch the rest
-        """
-
-
-class CouldntPickOutcomeError(BaseError):
-    pass
-
-
-class RedundantRemainderError(BaseError):
-    def title(self):
-        return "--otherwise passed in but not needed"
-
-    def description(self):
-        return """
-            The total of the all the probabilities already is 1.
-            There is no need for the --otherwise option: remove it.
-        """

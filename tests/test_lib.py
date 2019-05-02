@@ -2,7 +2,7 @@ from fractions import Fraction
 
 import pytest
 
-from trustthedice import lib
+from trustthedice import exceptions, lib
 
 
 def test_cumulative_outcomes_generates_remainder():
@@ -35,7 +35,7 @@ def test_cumulative_outcomes_cant_go_past_one():
     t1 = lib.ProbableOutcome(name="t1", probability=Fraction(4, 7))
     t2 = lib.ProbableOutcome(name="t1", probability=Fraction(4, 7))
 
-    with pytest.raises(lib.TotalProbabilityMoreThanOneError):
+    with pytest.raises(exceptions.TotalProbabilityMoreThanOneError):
         lib.calculate_cumulative_probabilities([t1, t2])
 
 
@@ -43,7 +43,7 @@ def test_cumulative_outcomes_cant_be_under_one():
     t1 = lib.ProbableOutcome(name="t1", probability=Fraction(3, 7))
     t2 = lib.ProbableOutcome(name="t1", probability=Fraction(3, 7))
 
-    with pytest.raises(lib.TotalProbabilityLessThanOneError):
+    with pytest.raises(exceptions.TotalProbabilityLessThanOneError):
         lib.calculate_cumulative_probabilities([t1, t2], remainder_name=None)
 
 
@@ -52,5 +52,5 @@ def test_cumulative_outcomes_rejects_redundant_remainder():
     t2 = lib.ProbableOutcome(name="t1", probability=Fraction(3, 7))
 
     # The probabilities already add up to 1, so a remainder is bad.
-    with pytest.raises(lib.RedundantRemainderError):
+    with pytest.raises(exceptions.RedundantRemainderError):
         lib.calculate_cumulative_probabilities([t1, t2], remainder_name="try")
