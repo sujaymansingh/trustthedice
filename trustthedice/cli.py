@@ -11,8 +11,11 @@ from . import exceptions, lib
 class ProbableOutcomeParamType(click.ParamType):
     name = "ProbableOutcome"
 
-    def convert(self, value, _param, _ctx):
-        return lib.parse_probable_outcome(value)
+    def convert(self, value, param, ctx):
+        try:
+            return lib.parse_probable_outcome(value)
+        except exceptions.BaseError as e:
+            self.fail(e.title(), param, ctx)
 
 
 def handle_errors_nicely(func):
