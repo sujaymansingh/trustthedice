@@ -1,4 +1,20 @@
-class BaseError(Exception):
+from textwrap import dedent
+
+import click
+
+
+class BaseError(click.ClickException):
+    def __init__(self):
+        pass
+
+    def show(self):
+        click.secho("Error: ", fg="red", nl=False)
+        click.echo(self.title() or self.__class__.__name__)
+
+        description = self.description() or ""
+        if description:
+            click.echo(dedent(description))
+
     def title(self):
         """Return a short, one line description
         """

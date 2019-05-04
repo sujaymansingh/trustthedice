@@ -1,7 +1,6 @@
 import random
 
 from functools import wraps
-from textwrap import dedent
 
 import click
 
@@ -28,12 +27,10 @@ def handle_errors_nicely(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except exceptions.BaseError as e:
-            click.secho("Error: ", fg="red", nl=False)
-            click.echo(e.title() or e.__class__.__name__)
-            description = e.description() or ""
-            if description:
-                click.echo(dedent(description))
+        except click.ClickException as e:
+            # Let click handle this, it'll show the relevant erroe message and
+            # exit with a non-zero code.
+            raise
         except:
             click.echo("unknown error")
             # TODO: don't just blindly raise! Deal with it better
