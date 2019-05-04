@@ -80,3 +80,34 @@ class SerialisationError(BaseError):
 
     def description(self):
         return self.message
+
+
+class ProjectNotInitialisedError(BaseError):
+    def title(self):
+        return "No project found"
+
+    def descripton(self):
+        return """
+            Can't find a project directory.
+            Try initialising a project first by running `trustthedice init`
+        """
+
+
+class ProjectCorruptedError(BaseError):
+    def title(self):
+        return "The project's files have become corrupted"
+
+    def descripton(self):
+        return """
+            TODO: a note on how to fix this?
+        """
+
+
+class RandomEventExistsError(BaseError):
+    def title(self):
+        return "A random event with this name already exists"
+
+    def description(self):
+        return """
+            Either chose a different name, or save using the --overwrite flag.
+        """

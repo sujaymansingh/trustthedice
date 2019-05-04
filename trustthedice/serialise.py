@@ -28,3 +28,9 @@ def read(input_file, serialisable_class):
     line = next(input_file).strip()
     simple_list = json.loads(line)
     return serialisable_class.from_simple_list(simple_list)
+
+
+def read_many(input_file, serialisable_class):
+    for line in input_file:
+        simple_list = json.loads(line.strip())
+        yield serialisable_class.from_simple_list(simple_list)

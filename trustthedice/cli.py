@@ -7,6 +7,10 @@ import click
 from . import exceptions, lib
 
 
+# TODO: make this configurable?
+PROJECT_DIR = ".trustthedice"
+
+
 class ProbableOutcomeParamType(click.ParamType):
     name = "ProbableOutcome"
 
@@ -42,6 +46,24 @@ def handle_errors_nicely(func):
 @click.group()
 def main():
     pass
+
+
+@main.command("save")
+@click.argument("name", type=str)
+@click.option(
+    "--outcome", "-oc", "outcomes", multiple=True, type=ProbableOutcomeParamType()
+)
+@click.option("--otherwise", type=str, default="")
+@click.option("--overwrite/--no-overwrite", default=False)
+@handle_errors_nicely
+def save_random_event(name, outcomes, otherwise, overwrite):
+    project_dir = PROJECT_DIR
+
+    all_outcomes = lib.calculate_cumulative_probabilities(
+        outcomes, remainder_name=otherwise
+    )
+    random_event = lib.RandomEvent(name=name, outcomes=all_outcomes)
+    lib.save_random_event(project_dir, random_event, overwrite)
 
 
 @main.command("random")

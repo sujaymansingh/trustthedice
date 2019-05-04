@@ -1,4 +1,6 @@
 from fractions import Fraction
+from os import path
+from typing import List
 
 from attr import attrs, attrib
 
@@ -24,6 +26,31 @@ class ProbableOutcome(serialise.Serialisable):
             )
         [name, num, den] = simple_list
         return ProbableOutcome(name, Fraction(num, den))
+
+
+@attrs
+class RandomEvent(serialise.Serialisable):
+    """A random event has a name, and several probable outcomes.
+    """
+
+    name: str = attrib()
+    outcomes: List[ProbableOutcome] = attrib(factory=list)
+
+    def to_simple_list(self):
+        return [self.name, [oc.to_simple_list() for oc in self.outcomes]]
+
+    @classmethod
+    def from_simple_list(cls, simple_list):
+        if not isinstance(simple_list, list) or len(simple_list) != 2:
+            raise exceptions.SerialisationError(
+                f"Expected a list [str, list] but got {simple_list}"
+            )
+        [name, raw_outcomes] = simple_list
+        outcomes = [
+            ProbableOutcome.from_simple_list(raw_outcome)
+            for raw_outcome in raw_outcomes
+        ]
+        return RandomEvent(name, outcomes)
 
 
 def parse_probable_outcome(outcome_string):
@@ -113,4 +140,45 @@ def pick_outcome(value, outcomes):
     for outcome in outcomes:
         if value <= outcome.probability:
             return outcome
-    raise CouldntPickOutcomeError()
+    raise exceptions.CouldntPickOutcomeError()
+
+
+def _get_and_assert_filename(project_dir, relative_filename):
+    if not path.isdir(project_dir):
+        raise exceptions.ProjectNotInitialisedError()
+
+    full_filename = path.join(project_dir, relative_filename)
+    if not path.isfile(full_filename):
+        raise exceptions.ProjectCorruptedError()
+    return full_filename
+
+
+def load_random_events(project_dir):
+    filename = _get_and_assert_filename(project_dir, "random_events")
+    with open(filename, "r") as input_file:
+        return list(serialise.read_many(input_file, RandomEvent))
+
+
+def save_random_event(project_dir, random_event, overwrite=None):
+
+    # TODO: this is not the most efficient way of doing things, but with only
+    # a handful of events it doesn't matter that much.
+    event_with_same_name = None
+    all_other_events = []
+
+    for existing_event in load_random_events(project_dir):
+        if existing_event.name == random_event.name:
+            event_with_same_name = existing_event
+        else:
+            all_other_events.append(existing_event)
+
+    if event_with_same_name is not None and not overwrite:
+        raise exceptions.RandomEventExistsError()
+
+    filename = _get_and_assert_filename(project_dir, "random_events")
+
+    events_to_write = all_other_events + [random_event]
+
+    with open(filename, "w") as output_file:
+        for event in events_to_write:
+            serialise.write(event, output_file)

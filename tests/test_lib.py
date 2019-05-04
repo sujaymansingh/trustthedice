@@ -1,6 +1,7 @@
 import json
 
 from fractions import Fraction
+from os import path
 
 import pytest
 
@@ -10,6 +11,20 @@ from trustthedice import exceptions, lib
 def test_outcome_serialise():
     _assert_serialisable(
         lib.ProbableOutcome(name="outcomo", probability=Fraction(1, 7))
+    )
+
+
+def test_event_serialise():
+    _assert_serialisable(
+        lib.RandomEvent(
+            name="evento",
+            outcomes=[
+                lib.ProbableOutcome(name="Safety", probability=Fraction(1, 2)),
+                lib.ProbableOutcome(
+                    name="Woodpeckero loco", probability=Fraction(1, 2)
+                ),
+            ],
+        )
     )
 
 
@@ -81,3 +96,36 @@ def test_cumulative_outcomes_rejects_redundant_remainder():
     # The probabilities already add up to 1, so a remainder is bad.
     with pytest.raises(exceptions.RedundantRemainderError):
         lib.calculate_cumulative_probabilities([t1, t2], remainder_name="try")
+
+
+def test_saving_a_random_event(tmp_path):
+    with open(path.join(tmp_path, "random_events"), "w") as out:
+        out.write("")
+
+    random_event = lib.RandomEvent(
+        name="sure thing",
+        outcomes=[
+            lib.ProbableOutcome(name="win", probability=Fraction(99, 100)),
+            lib.ProbableOutcome(name="lose", probability=Fraction(1, 100)),
+        ],
+    )
+
+    assert lib.load_random_events(tmp_path) == []
+
+    # First write the event...
+    lib.save_random_event(tmp_path, random_event)
+
+    assert lib.load_random_events(tmp_path) == [random_event]
+
+    # Now, attempting to rewrite it is bad!
+    with pytest.raises(exceptions.RandomEventExistsError):
+        lib.save_random_event(tmp_path, random_event)
+
+    # now let's modify it
+    new_random_event = lib.RandomEvent(
+        name="sure thing",
+        outcomes=[lib.ProbableOutcome(name="win", probability=Fraction(100, 100))],
+    )
+    lib.save_random_event(tmp_path, new_random_event, overwrite=True)
+
+    assert lib.load_random_events(tmp_path) == [new_random_event]
