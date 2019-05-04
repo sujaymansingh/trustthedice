@@ -2,16 +2,28 @@ from fractions import Fraction
 
 from attr import attrs, attrib
 
-from . import exceptions
+from . import exceptions, serialise
 
 
 @attrs
-class ProbableOutcome:
+class ProbableOutcome(serialise.Serialisable):
     """A probable outcome has a name and a probability.
     """
 
     name: str = attrib()
     probability: Fraction = attrib()
+
+    def to_simple_list(self):
+        return [self.name, self.probability.numerator, self.probability.denominator]
+
+    @classmethod
+    def from_simple_list(cls, simple_list):
+        if not isinstance(simple_list, list) or len(simple_list) != 3:
+            raise exceptions.SerialisationError(
+                f"Expected a list [str, int, int] but got {simple_list}"
+            )
+        [name, num, den] = simple_list
+        return ProbableOutcome(name, Fraction(num, den))
 
 
 def parse_probable_outcome(outcome_string):

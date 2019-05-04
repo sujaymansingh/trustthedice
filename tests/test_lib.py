@@ -1,8 +1,35 @@
+import json
+
 from fractions import Fraction
 
 import pytest
 
 from trustthedice import exceptions, lib
+
+
+def test_outcome_serialise():
+    _assert_serialisable(
+        lib.ProbableOutcome(name="outcomo", probability=Fraction(1, 7))
+    )
+
+
+def _assert_serialisable(original):
+    simple_list = original.to_simple_list()
+    # The whole point is to produce something that can be JSON serialised:
+    # thus this shouldn't throw an erroe.
+    json.dumps(simple_list)
+    reconstructed = original.__class__.from_simple_list(simple_list)
+    assert reconstructed == original
+
+
+def test_bad_serialisable_input_for_outcome():
+    for bad_input in [
+        [],
+        ["has a name and numerator", "but not a denominator"],
+        "not a list",
+    ]:
+        with pytest.raises(exceptions.SerialisationError):
+            lib.ProbableOutcome.from_simple_list(bad_input)
 
 
 def test_cumulative_outcomes_generates_remainder():

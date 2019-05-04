@@ -69,3 +69,14 @@ class RedundantRemainderError(BaseError):
             The total of the all the probabilities already is 1.
             There is no need for the --otherwise option: remove it.
         """
+
+
+class SerialisationError(BaseError):
+    def __init__(self, message):
+        self.message = message
+
+    def title(self):
+        return "Couldn't load object from disk"
+
+    def description(self):
+        return self.message
