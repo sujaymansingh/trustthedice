@@ -76,11 +76,20 @@ def save_random_event(name, outcomes, otherwise, overwrite):
     "--outcome", "-oc", "outcomes", multiple=True, type=ProbableOutcomeParamType()
 )
 @click.option("--otherwise", type=str, default="")
+@click.option("--from-saved", "saved_event_name", type=str, default="")
 @handle_errors_nicely
-def pick_random_outcome(outcomes, otherwise):
-    outcomes = lib.calculate_cumulative_probabilities(
-        outcomes, remainder_name=otherwise
-    )
+def pick_random_outcome(outcomes, otherwise, saved_event_name):
+    if saved_event_name:
+        if outcomes or otherwise:
+            raise exceptions.CantHaveOutcomesAndSavedEventError()
+
+        project_dir = PROJECT_DIR
+        event = lib.load_random_event(project_dir, saved_event_name)
+        outcomes = event.outcomes
+    else:
+        outcomes = lib.calculate_cumulative_probabilities(
+            outcomes, remainder_name=otherwise
+        )
     value = random.random()
     chosen_outcome = lib.pick_outcome(value, outcomes)
 

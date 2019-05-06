@@ -129,3 +129,19 @@ def test_saving_a_random_event(tmp_path):
     lib.save_random_event(tmp_path, new_random_event, overwrite=True)
 
     assert lib.load_random_events(tmp_path) == [new_random_event]
+
+
+def test_loading_a_specific_event(tmp_path):
+    with open(path.join(tmp_path, "random_events"), "w") as out:
+        out.write("")
+
+    random_event = lib.RandomEvent(
+        name="sure thing",
+        outcomes=[lib.ProbableOutcome(name="win", probability=Fraction(100, 100))],
+    )
+    lib.save_random_event(tmp_path, random_event)
+
+    assert lib.load_random_event(tmp_path, "sure thing") == random_event
+
+    with pytest.raises(exceptions.RandomEventDoesntExistError):
+        lib.load_random_event(tmp_path, "this won't exist")

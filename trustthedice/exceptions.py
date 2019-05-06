@@ -111,3 +111,25 @@ class RandomEventExistsError(BaseError):
         return """
             Either chose a different name, or save using the --overwrite flag.
         """
+
+
+class RandomEventDoesntExistError(BaseError):
+    def title(self):
+        return "No event with this name exists"
+
+    def description(self):
+        return """
+            Check the name. Case matters!
+            (i.e. 'Hoohah' is not the same as 'hoohah')
+        """
+
+
+class CantHaveOutcomesAndSavedEventError(BaseError):
+    def title(self):
+        return "Can't have both a saved random event and outcomes"
+
+    def description(self):
+        return """
+            Either use just the saved event (--from-saved) or specify the
+            outcomes explicitly (--outcome). You can't use both.
+        """

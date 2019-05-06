@@ -159,6 +159,15 @@ def load_random_events(project_dir):
         return list(serialise.read_many(input_file, RandomEvent))
 
 
+def load_random_event(project_dir, desired_event_name):
+    # TODO: loading everything into memory just to get one item is ok as long
+    # as we only have a few events.
+    for event in load_random_events(project_dir):
+        if event.name == desired_event_name:
+            return event
+    raise exceptions.RandomEventDoesntExistError()
+
+
 def save_random_event(project_dir, random_event, overwrite=None):
 
     # TODO: this is not the most efficient way of doing things, but with only
