@@ -1,9 +1,9 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 
 setup(
     name="trustthedice",
-    version="0.0.1",
+    version="0.0.2",
     py_modules=["trustthedice"],
     author="Sujay Mansingh",
     author_email="info@sujaymansingh.com",
@@ -14,6 +14,7 @@ setup(
         [console_scripts]
         trustthedice=trustthedice.cli:main
     """,
+    packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
