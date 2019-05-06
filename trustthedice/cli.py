@@ -48,7 +48,12 @@ def main():
     pass
 
 
-@main.command("save")
+@main.group()
+def events():
+    pass
+
+
+@events.command("save")
 @click.argument("name", type=str)
 @click.option(
     "--outcome", "-oc", "outcomes", multiple=True, type=ProbableOutcomeParamType()
