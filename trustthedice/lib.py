@@ -1,5 +1,5 @@
 from fractions import Fraction
-from os import path
+from os import makedirs, path
 from typing import List
 
 from attr import attrs, attrib
@@ -141,6 +141,18 @@ def pick_outcome(value, outcomes):
         if value <= outcome.probability:
             return outcome
     raise exceptions.CouldntPickOutcomeError()
+
+
+def initialise(project_dir, ignore_existing=None):
+    if path.exists(project_dir) and not ignore_existing:
+        raise exceptions.ProjectAlreadyExistsError(project_dir)
+
+    makedirs(project_dir, exist_ok=True)
+
+    events_filename = path.join(project_dir, "random_events")
+    if not path.exists(events_filename):
+        with open(events_filename, "w") as out:
+            out.write("")
 
 
 def _get_and_assert_filename(project_dir, relative_filename):

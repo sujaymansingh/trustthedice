@@ -48,6 +48,17 @@ def main():
     pass
 
 
+@main.command()
+@click.option(
+    "--ignore-existing/--no-ignore-existing",
+    default=False,
+    help="If a project already exists, ignore it rather than throwing an error",
+)
+def init(ignore_existing):
+    project_dir = PROJECT_DIR
+    lib.initialise(project_dir, ignore_existing=ignore_existing)
+
+
 @main.group()
 def events():
     pass

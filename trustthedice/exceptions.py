@@ -82,6 +82,24 @@ class SerialisationError(BaseError):
         return self.message
 
 
+class ProjectAlreadyExistsError(BaseError):
+    def __init__(self, project_dir):
+        self.project_dir = project_dir
+
+    def title(self):
+        return "A project already exists at that location"
+
+    def description(self):
+        return f"""
+            There is an existing directory: {self.project_dir}.
+            There is no need to initialise it again.
+            If you want `init` to ignore existing directories, use the
+            `--ignore-existing` flag.
+            If you want to remove this project, delete the directory and run
+            `init` again.
+        """
+
+
 class ProjectNotInitialisedError(BaseError):
     def title(self):
         return "No project found"

@@ -98,6 +98,21 @@ def test_cumulative_outcomes_rejects_redundant_remainder():
         lib.calculate_cumulative_probabilities([t1, t2], remainder_name="try")
 
 
+def test_initialise(tmp_path):
+    project_dir = path.join(tmp_path, ".trustthedice")
+    assert not path.exists(project_dir)
+
+    lib.initialise(project_dir)
+
+    assert path.isdir(project_dir)
+    assert path.isfile(path.join(project_dir, "random_events"))
+
+    with pytest.raises(exceptions.ProjectAlreadyExistsError):
+        lib.initialise(project_dir)
+
+    lib.initialise(project_dir, ignore_existing=True)
+
+
 def test_saving_a_random_event(tmp_path):
     with open(path.join(tmp_path, "random_events"), "w") as out:
         out.write("")
