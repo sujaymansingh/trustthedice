@@ -3,7 +3,7 @@
 This script will pick from a list of outcomes, each with its own probability.
 
 I wrote it to pick decisions for me randomly so that I wouldn't have to expend
-the mental effort to do so.
+the mental effort to do so myself.
 
 [http://youcanbecueball.com/2019/05/13/trust-the-dice-1/](http://youcanbecueball.com/2019/05/13/trust-the-dice-1/)
 
